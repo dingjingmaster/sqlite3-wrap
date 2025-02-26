@@ -31,7 +31,7 @@ namespace sqlite3_wrap
         int connect(const QString& dbName);
         int execute(char const* sql, ...);
         int errorCode() const;
-        char const* lastError() const;
+        QString lastError() const;
 
     private:
         std::shared_ptr<Sqlite3Private>         d_ptr = nullptr;
@@ -90,7 +90,7 @@ namespace sqlite3_wrap
             {
                 const auto rc = mCmd.bind(mIdx, value);
                 if (SQLITE_OK != rc) {
-                    throw std::runtime_error(mCmd.mDB.lastError());
+                    throw std::runtime_error(mCmd.mDB.lastError().toStdString());
                 }
                 ++mIdx;
                 return *this;
@@ -100,7 +100,7 @@ namespace sqlite3_wrap
             {
                 const auto rc = mCmd.bind(mIdx, value.toStdString().c_str());
                 if (SQLITE_OK != rc) {
-                    throw std::runtime_error(mCmd.mDB.lastError());
+                    throw std::runtime_error(mCmd.mDB.lastError().toStdString());
                 }
                 ++mIdx;
                 return *this;

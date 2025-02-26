@@ -160,7 +160,7 @@ int sqlite3_wrap::Sqlite3::errorCode() const
     return sqlite3_errcode(d->mDB);
 }
 
-char const * sqlite3_wrap::Sqlite3::lastError() const
+QString sqlite3_wrap::Sqlite3::lastError() const
 {
     Q_D(const Sqlite3);
 
@@ -260,7 +260,7 @@ sqlite3_wrap::Sqlite3Statement::Sqlite3Statement(Sqlite3 & db, const QString& st
     if (nullptr != stmt) {
         const auto rc = prepare(stmt);
         if (SQLITE_OK != rc) {
-            throw std::runtime_error(db.lastError());
+            throw std::runtime_error(db.lastError().toStdString());
         }
     }
 }
@@ -404,7 +404,7 @@ sqlite3_wrap::Sqlite3Query::Sqlite3QueryIterator::Sqlite3QueryIterator(Sqlite3Qu
 {
     mRc = mCmd->step();
     if (SQLITE_DONE != mRc && SQLITE_ROW != mRc) {
-        throw std::runtime_error(mCmd->mDB.lastError());
+        throw std::runtime_error(mCmd->mDB.lastError().toStdString());
     }
 }
 
@@ -422,7 +422,7 @@ sqlite3_wrap::Sqlite3Query::Sqlite3QueryIterator & sqlite3_wrap::Sqlite3Query::S
 {
     mRc = mCmd->step();
     if (SQLITE_DONE != mRc && SQLITE_ROW != mRc) {
-        throw std::runtime_error(mCmd->mDB.lastError());
+        throw std::runtime_error(mCmd->mDB.lastError().toStdString());
     }
     return *this;
 }
@@ -468,7 +468,7 @@ sqlite3_wrap::Sqlite3Transaction::Sqlite3Transaction(Sqlite3 & db, bool commit, 
 {
     const int rc = mDB.execute(freserve ? "BEGIN IMMEDIATE" : "BEGIN");
     if (SQLITE_OK != rc) {
-        throw std::runtime_error(mDB.lastError());
+        throw std::runtime_error(mDB.lastError().toStdString());
     }
 }
 
