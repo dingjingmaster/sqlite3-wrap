@@ -40,6 +40,7 @@ namespace sqlite3_wrap
     class Sqlite3Statement
     {
     public:
+        Sqlite3Statement() = delete;
         int prepare(const QString& stmt);
         int finish();
 
@@ -64,7 +65,6 @@ namespace sqlite3_wrap
         int reset() const;
 
     protected:
-        Sqlite3Statement() = delete;
         explicit Sqlite3Statement(Sqlite3& db, const QString& stmt = nullptr);
         ~Sqlite3Statement();
 
@@ -176,7 +176,7 @@ namespace sqlite3_wrap
             Sqlite3Query*     mCmd;
             int               mRc;
         };
-        Sqlite3Query();
+        // Sqlite3Query();
         explicit Sqlite3Query(Sqlite3& db, const QString& stmt = nullptr);
         int columnCount() const;
         QString columnName(int idx) const;
