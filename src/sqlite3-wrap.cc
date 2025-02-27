@@ -25,6 +25,8 @@ namespace sqlite3_wrap
         int connect(const QString& dbName, int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
         int execute(const QString& sql);
         bool checkTableIsExist(const QString& tableName);
+        bool checkTableKeyIsExist(const QString& tableName, const QString& fieldName, qint64 key);
+        bool checkTableKeyIsExist(const QString& tableName, const QString& fieldName, const QString& key);
 
         void lockForWrite();
         void unlockForWrite();
@@ -115,6 +117,44 @@ bool sqlite3_wrap::Sqlite3Private::checkTableIsExist(const QString & tableName)
     return (rc == SQLITE_ROW);
 }
 
+bool sqlite3_wrap::Sqlite3Private::checkTableKeyIsExist(const QString & tableName, const QString & fieldName, qint64 key)
+{
+    lockForWrite();
+    sqlite3_stmt* stmt = nullptr;
+    const int res = sqlite3_prepare_v2(mDB,
+        QString("SELECT %1 FROM %2 WHERE %3 = %4;")
+        .arg(fieldName).arg(tableName).arg(fieldName).arg(key).toUtf8().constData(), -1, &stmt, nullptr);
+    if (res != SQLITE_OK) {
+        unlockForWrite();
+        qWarning() << "sqlite3_prepare_v2 failed: " << sqlite3_errmsg(mDB);
+        return false;
+    }
+    const int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    unlockForWrite();
+
+    return (rc == SQLITE_ROW);
+}
+
+bool sqlite3_wrap::Sqlite3Private::checkTableKeyIsExist(const QString & tableName, const QString & fieldName, const QString & key)
+{
+    lockForWrite();
+    sqlite3_stmt* stmt = nullptr;
+    const int res = sqlite3_prepare_v2(mDB,
+        QString("SELECT %1 FROM %2 WHERE %3 = '%4';")
+        .arg(fieldName).arg(tableName).arg(fieldName).arg(key).toUtf8().constData(), -1, &stmt, nullptr);
+    if (res != SQLITE_OK) {
+        unlockForWrite();
+        qWarning() << "sqlite3_prepare_v2 failed: " << sqlite3_errmsg(mDB);
+        return false;
+    }
+    const int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    unlockForWrite();
+
+    return (rc == SQLITE_ROW);
+}
+
 void sqlite3_wrap::Sqlite3Private::lockForWrite()
 {
     mMutexLocker.lock();
@@ -183,6 +223,20 @@ bool sqlite3_wrap::Sqlite3::checkTableIsExist(const QString & tableName)
     Q_D(Sqlite3);
 
     return d->checkTableIsExist(tableName);
+}
+
+bool sqlite3_wrap::Sqlite3::checkKeyExist(const QString & tableName, const QString & fieldName, qint64 key)
+{
+    Q_D(Sqlite3);
+
+    return d->checkTableKeyIsExist(tableName, fieldName, key);
+}
+
+bool sqlite3_wrap::Sqlite3::checkKeyExist(const QString & tableName, const QString& fieldName, const QString & key)
+{
+    Q_D(Sqlite3);
+
+    return d->checkTableKeyIsExist(tableName, fieldName, key);
 }
 
 QString sqlite3_wrap::Sqlite3::lastError() const

@@ -84,6 +84,9 @@ int main (int argc, char* argv[])
     qInfo() << "Table: ccc  - " << sqlite3.checkTableIsExist("ccc");
     qInfo() << "Table: cccc - " << sqlite3.checkTableIsExist("cccc");
 
+    qInfo() << "Table key is exists: " << sqlite3.checkKeyExist("ccc", "name", "Name1");
+    qInfo() << "Table key is exists: " << sqlite3.checkKeyExist("ccc", "name", "Name2");
+
 
     return 0;
 }

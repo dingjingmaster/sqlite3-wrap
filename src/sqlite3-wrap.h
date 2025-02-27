@@ -28,11 +28,14 @@ namespace sqlite3_wrap
         Sqlite3 &operator=(Sqlite3 &&) noexcept;
 
         void disconnect();
-        int connect(const QString& dbName);
-        int execute(char const* sql, ...);
         int errorCode() const;
-        bool checkTableIsExist(const QString& tableName);
         QString lastError() const;
+        int execute(char const* sql, ...);
+        int connect(const QString& dbName);
+
+        bool checkTableIsExist(const QString& tableName);
+        bool checkKeyExist(const QString& tableName, const QString& fieldName, qint64 key);
+        bool checkKeyExist(const QString& tableName, const QString& fieldName, const QString& key);
 
     private:
         std::shared_ptr<Sqlite3Private>         d_ptr = nullptr;
