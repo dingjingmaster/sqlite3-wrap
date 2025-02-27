@@ -107,6 +107,7 @@ bool sqlite3_wrap::Sqlite3Private::checkTableIsExist(const QString & tableName)
     const int res = sqlite3_prepare_v2(mDB, "SELECT name FROM sqlite_master WHERE type='table' AND name = ?;", -1, &stmt, nullptr);
     if (res != SQLITE_OK) {
         unlockForWrite();
+        qWarning() << "checkTableIsExist --> sqlite3_prepare_v2() failed: " << sqlite3_errmsg(mDB);
         return false;
     }
     sqlite3_bind_text(stmt, 1, tableName.toUtf8().constData(), -1, nullptr);
