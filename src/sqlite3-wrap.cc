@@ -24,6 +24,7 @@ namespace sqlite3_wrap
         void disconnect();
         int connect(const QString& dbName, int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
         int execute(const QString& sql);
+        bool checkTableIsExist(const QString& tableName);
 
         void lockForWrite();
         void unlockForWrite();
@@ -97,6 +98,23 @@ int sqlite3_wrap::Sqlite3Private::execute(const QString & sql)
     return ret;
 }
 
+bool sqlite3_wrap::Sqlite3Private::checkTableIsExist(const QString & tableName)
+{
+    lockForWrite();
+    sqlite3_stmt* stmt = nullptr;
+    const int res = sqlite3_prepare_v2(mDB, "SELECT name FROM sqlite_master WHERE type='table' AND name = ?;", -1, &stmt, nullptr);
+    if (res != SQLITE_OK) {
+        unlockForWrite();
+        return false;
+    }
+    sqlite3_bind_text(stmt, 1, tableName.toUtf8().constData(), -1, nullptr);
+    const int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    unlockForWrite();
+
+    return (rc == SQLITE_ROW);
+}
+
 void sqlite3_wrap::Sqlite3Private::lockForWrite()
 {
     mMutexLocker.lock();
@@ -158,6 +176,13 @@ int sqlite3_wrap::Sqlite3::errorCode() const
     Q_D(const Sqlite3);
 
     return sqlite3_errcode(d->mDB);
+}
+
+bool sqlite3_wrap::Sqlite3::checkTableIsExist(const QString & tableName)
+{
+    Q_D(Sqlite3);
+
+    return d->checkTableIsExist(tableName);
 }
 
 QString sqlite3_wrap::Sqlite3::lastError() const

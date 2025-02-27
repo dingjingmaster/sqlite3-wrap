@@ -81,6 +81,9 @@ int main (int argc, char* argv[])
         qCritical() << "exception: " << e.what();
     }
 
+    qInfo() << "Table: ccc  - " << sqlite3.checkTableIsExist("ccc");
+    qInfo() << "Table: cccc - " << sqlite3.checkTableIsExist("cccc");
+
 
     return 0;
 }

@@ -31,6 +31,7 @@ namespace sqlite3_wrap
         int connect(const QString& dbName);
         int execute(char const* sql, ...);
         int errorCode() const;
+        bool checkTableIsExist(const QString& tableName);
         QString lastError() const;
 
     private:
