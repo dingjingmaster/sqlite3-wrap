@@ -141,16 +141,16 @@ bool sqlite3_wrap::Sqlite3Private::checkTableKeyIsExist(const QString & tableNam
 {
     lockForWrite();
     sqlite3_stmt* stmt = nullptr;
-    const int res = sqlite3_prepare_v2(mDB, "SELECT ? FROM ? WHERE ? = '?';", -1, &stmt, nullptr);
+
+    const int res = sqlite3_prepare_v2(mDB,
+        QString("SELECT %1 FROM %2 WHERE %1 = ?;").arg(fieldName).arg(tableName).toUtf8().constData(),
+        -1, &stmt, nullptr);
     if (res != SQLITE_OK) {
         unlockForWrite();
         qWarning() << "sqlite3_prepare_v2 failed: " << sqlite3_errmsg(mDB);
         return false;
     }
-    sqlite3_bind_text(stmt, 1, fieldName.toUtf8().constData(), -1, nullptr);
-    sqlite3_bind_text(stmt, 2, tableName.toUtf8().constData(), -1, nullptr);
-    sqlite3_bind_text(stmt, 3, fieldName.toUtf8().constData(), -1, nullptr);
-    sqlite3_bind_text(stmt, 4, key.toUtf8().constData(), -1, nullptr);
+    sqlite3_bind_text(stmt, 1, key.toUtf8().constData(), -1, nullptr);
     const int rc = sqlite3_step(stmt);
     sqlite3_finalize(stmt);
     unlockForWrite();
