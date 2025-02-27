@@ -141,12 +141,11 @@ bool sqlite3_wrap::Sqlite3Private::checkTableKeyIsExist(const QString & tableNam
 {
     lockForWrite();
     sqlite3_stmt* stmt = nullptr;
-    const int res = sqlite3_prepare_v2(mDB,
-        QString("SELECT %1 FROM %2 WHERE %3 = '%4';")
-        .arg(fieldName).arg(tableName).arg(fieldName).arg(key).toUtf8().constData(), -1, &stmt, nullptr);
+    const QString sql = QString("SELECT %1 FROM %2 WHERE %3 = '%4';").arg(fieldName).arg(tableName).arg(key);
+    const int res = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (res != SQLITE_OK) {
         unlockForWrite();
-        qWarning() << "sqlite3_prepare_v2 failed: " << sqlite3_errmsg(mDB);
+        qWarning() << "sqlite3_prepare_v2 failed: " << sqlite3_errmsg(mDB) << " sql: " << sql;
         return false;
     }
     const int rc = sqlite3_step(stmt);
